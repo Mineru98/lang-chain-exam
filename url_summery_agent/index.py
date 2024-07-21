@@ -45,7 +45,7 @@ class Main:
         if res.returncode == 1:
             subprocess.run("npm i -g @philschmid/clipper", shell=True)
 
-    def run(self, url: str):
+    def run(self, url: str, prompt: str = ""):
         self.__check()
         llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
         filepath = process_url(url)
@@ -56,7 +56,7 @@ class Main:
         messages = [
             (
                 "system",
-                "한글로 다음 내용들을 요약해줘.",
+                "한글로 다음 내용들을 요약해줘." + prompt,
             ),
             ("human", f"### 입력 데이터\n{content}\n### 출력\n"),
         ]
