@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 # GitHub Personal Access Token
 if "GITHUB_TOKEN" not in os.environ:
-    os.environ["GITHUB_TOKEN"] = getpass.getpass("Provide your Google API Key")
+    os.environ["GITHUB_TOKEN"] = getpass.getpass("Provide your Github Token Key")
 token = os.environ["GITHUB_TOKEN"]
 
 # GitHub 사용자명

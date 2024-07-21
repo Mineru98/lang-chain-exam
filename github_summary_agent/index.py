@@ -15,7 +15,7 @@ if "GOOGLE_API_KEY" not in os.environ:
 
 # GitHub Personal Access Token
 if "GITHUB_TOKEN" not in os.environ:
-    os.environ["GITHUB_TOKEN"] = getpass.getpass("Provide your Google API Key")
+    os.environ["GITHUB_TOKEN"] = getpass.getpass("Provide your Github Token Key")
 token = os.environ["GITHUB_TOKEN"]
 headers = {"Authorization": f"token {token}"}
 
@@ -92,7 +92,15 @@ def remove_urls_from_md(filepath: str):
 
 
 class Main:
+    def __check(self):
+        res = subprocess.run(
+            "which clipper", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+        if res.returncode == 1:
+            subprocess.run("npm i -g @philschmid/clipper", shell=True)
+
     def run(self, url: str):
+        self.__check()
         if not url.startswith("https://github.com/"):
             raise "github 링크가 아닙니다."
         llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
