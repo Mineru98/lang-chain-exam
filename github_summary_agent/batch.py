@@ -12,7 +12,7 @@ if "GOOGLE_API_KEY" not in os.environ:
     os.environ["GOOGLE_API_KEY"] = getpass.getpass("Provide your Google API Key")
 
 
-def remove_consecutive_newlines(text):
+def remove_consecutive_newlines(text: str):
     pattern = r"\n{2,}"
     new_text = re.sub(pattern, "\n", text)
     if new_text == text:
@@ -28,7 +28,7 @@ def normalize_whitespace(text: str):
     return text
 
 
-def remove_code_blocks(markdown_text):
+def remove_code_blocks(markdown_text: str):
     # 개선된 정규 표현식 패턴
     pattern = r"(```[^\n]*\n)(?:(?!```).)*?\n```"
 
@@ -77,20 +77,21 @@ try:
 ### 요구사항
 - summary는 content에 있는 내용을 참고해서 어떤 프로젝트인지를 요약 해서 설명해줘.
 - summary는 반드시 한글로 작성해줘.
-- tags는 이 깃헙 링크를 분류하기 위한 목적으로 만들어 주세요. 반드시 #을 붙여주세요.
+- tags는 이 깃헙 링크를 분류하기 위한 목적으로 만들어 주세요.
+- tgas는 최대 5개까지만 만들어주세요.
 - aliases는 내가 해당 프로젝트를 찾기 쉽게 하도록 하기 위한 내용입니다.
 ### 양식
 ```
 ---
 Language: {main_code_language}
 tags:
-- #{tag_name_1}
-- #{tag_name_2}
-- ...
+ - {tag_name_1}
+ - {tag_name_2}
+ - ...
 aliases:
-- {alias_1}
-- {alias_2}
-- ...
+ - {alias_1}
+ - {alias_2}
+ - ...
 url: {github_url}
 ---
 {summary}
