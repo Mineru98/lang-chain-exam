@@ -97,7 +97,12 @@ class Main:
             "which clipper", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
         if res.returncode == 1:
-            subprocess.run("npm i -g @philschmid/clipper", shell=True)
+            subprocess.run(
+                "npm i -g @philschmid/clipper",
+                shell=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
 
     def run(self, url: str):
         self.__check()
