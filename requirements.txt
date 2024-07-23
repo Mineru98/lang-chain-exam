@@ -2,3 +2,4 @@ requests==2.32.3
 langchain-google-genai==1.0.7
 fire==0.6.0
 orjson==3.10.6
+md2pdf==1.0.1
