@@ -1,4 +1,3 @@
-import locale
 import re
 from urllib.parse import parse_qs, urlparse
 
@@ -6,9 +5,6 @@ import streamlit as st
 from langchain_google_genai import ChatGoogleGenerativeAI
 from pytube import YouTube
 from youtube_transcript_api import YouTubeTranscriptApi
-
-# locale 설정
-locale.setlocale(locale.LC_ALL, "")
 
 
 def format_date(date_obj):
@@ -19,7 +15,7 @@ def format_date(date_obj):
 
 # 숫자를 통화 형식으로 변환하는 함수
 def format_currency(value: int, currency_symbol=""):
-    return locale.currency(value, symbol=currency_symbol, grouping=True)
+    return value
 
 
 def format_seconds(seconds: int):
