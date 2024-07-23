@@ -99,6 +99,7 @@ def action(url: str, method: str, model: str):
             )
     else:
         return None
+    st.session_state.clicked = False
 
 
 def render(url: str):

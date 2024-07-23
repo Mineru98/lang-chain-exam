@@ -179,6 +179,8 @@ markdown 양식으로 변환해줘.
         st.error(
             "요약에 실패했습니다. 요청 횟수 제한이 걸렸거나, API KEY 입력이 잘못 되었습니다."
         )
+    finally:
+        st.session_state.clicked = False
 
 
 def get_youtube_video_id(url: str):
