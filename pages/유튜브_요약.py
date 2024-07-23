@@ -109,7 +109,10 @@ def click_button():
 
 def action(url, content, method: str, model: str, prompt: str = None):
     llm = ChatGoogleGenerativeAI(
-        model=model, google_api_key=st.session_state.gemini_api_key
+        model=model,
+        google_api_key=st.session_state.gemini_api_key,
+        max_retries=3,
+        timeout=60,
     )
     base_script = ""
     if method == "타임스탬프 생성":
