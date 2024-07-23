@@ -3,3 +3,6 @@ langchain-google-genai==1.0.7
 fire==0.6.0
 orjson==3.10.6
 md2pdf==1.0.1
+streamlit==1.36.0
+readabilipy==0.2.0
+html2text==2024.2.26

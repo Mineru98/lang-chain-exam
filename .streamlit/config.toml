@@ -1,0 +1,10 @@
+[client]
+showSidebarNavigation = false
+
+[theme]
+primaryColor = "#89CFF0"
+backgroundColor = "#ffffff"
+
+[server]
+enableCORS = true
+enableXsrfProtection = true

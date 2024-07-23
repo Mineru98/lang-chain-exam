@@ -1,18 +1,16 @@
 import getpass
 import os
+import re
 from urllib.parse import parse_qs, urlparse
 
 import fire
+import requests
 from langchain_google_genai import ChatGoogleGenerativeAI
+from pytube import YouTube
 from youtube_transcript_api import YouTubeTranscriptApi
 
 if "GOOGLE_API_KEY" not in os.environ:
     os.environ["GOOGLE_API_KEY"] = getpass.getpass("Provide your Google API Key")
-
-import re
-
-import requests
-from pytube import YouTube
 
 
 def clean_title(title: str):
