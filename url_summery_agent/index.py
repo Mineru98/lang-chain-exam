@@ -1,14 +1,10 @@
 import getpass
-import json
 import os
-import re
 import subprocess
 import time
-from typing import Dict
 from urllib.parse import urlparse
 
 import fire
-import requests
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 if "GOOGLE_API_KEY" not in os.environ:
