@@ -7,3 +7,4 @@ streamlit==1.36.0
 readabilipy==0.2.0
 html2text==2024.2.26
 pytube
+youtube-transcript-api==0.6.2
