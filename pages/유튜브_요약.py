@@ -1,5 +1,6 @@
 import locale
 import re
+from urllib.parse import parse_qs, urlparse
 
 import streamlit as st
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -184,6 +185,13 @@ markdown 양식으로 변환해줘.
         )
 
 
+def get_youtube_video_id(url: str):
+    parsed_url = urlparse(url)
+    query_params = parse_qs(parsed_url.query)
+    video_id = query_params.get("v", [None])[0]
+    return video_id
+
+
 def render(video_id: str):
     url = f"https://youtu.be/{video_id}"
     with st.spinner("링크 분석 중"):
@@ -234,7 +242,7 @@ else:
         video_id = youtube_url.split("/")[-1]
         render(video_id)
     elif youtube_url.startswith("https://www.youtube.com/watch?"):
-        video_id = youtube_url.split("v=")[-1].split("&")[0]
+        video_id = get_youtube_video_id(youtube_url)
         render(video_id)
     elif youtube_url != "":
         st.warning("유효한 YouTube URL을 입력하세요.")
