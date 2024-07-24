@@ -150,11 +150,11 @@ def extract_left_properties(html_content):
     return results
 
 
-class Main:
-    def run(self, filepath: str, prompt: Optional[str]):
+class PdfSummaryAgent:
+    def run(self, filepath: str, prompt: Optional[str], model: str = "gemini-1.5-pro"):
         if not os.path.exists(filepath):
             raise "파일이 존재하지 않습니다."
-        llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro")
+        llm = ChatGoogleGenerativeAI(model=model)
         with open(filepath, mode="r", encoding="utf-8") as f:
             content = f.read()
         if prompt is None:
@@ -226,4 +226,4 @@ class Main:
 
 
 if __name__ == "__main__":
-    fire.Fire(Main)
+    fire.Fire(PdfSummaryAgent)

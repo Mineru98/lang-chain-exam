@@ -91,7 +91,7 @@ def remove_urls_from_md(filepath: str):
     return content
 
 
-class Main:
+class GithubSummaryAgent:
     def __check(self):
         res = subprocess.run(
             "which clipper", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
@@ -104,11 +104,11 @@ class Main:
                 stderr=subprocess.PIPE,
             )
 
-    def run(self, url: str):
+    def run(self, url: str, model: str = "gemini-1.5-flash"):
         self.__check()
         if not url.startswith("https://github.com/"):
             raise "github 링크가 아닙니다."
-        llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
+        llm = ChatGoogleGenerativeAI(model=model)
         filepath = process_url(url)
         while not os.path.exists(filepath):
             print("파일이 존재하지 않아 잠시 멈췄습니다.")
@@ -155,4 +155,4 @@ url: {github_url}
 
 
 if __name__ == "__main__":
-    fire.Fire(Main)
+    fire.Fire(GithubSummaryAgent)

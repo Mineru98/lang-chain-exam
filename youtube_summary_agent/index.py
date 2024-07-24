@@ -46,13 +46,13 @@ def get_youtube_video_id(url: str):
     return video_id
 
 
-class Main:
-    def run(self, url: str, script: bool = False):
+class YoutubeSummaryAgent:
+    def run(self, url: str, script: bool = False, model: str = "gemini-1.5-pro"):
         title, thumbnail_path = get_youtube_info(url)
         video_id = get_youtube_video_id(url)
         srt = YouTubeTranscriptApi.get_transcript(video_id, languages=["ko"])
         content = [i for i in srt if i["text"] != "[음악]"]
-        llm = ChatGoogleGenerativeAI(model="gemini-1.5-pro")
+        llm = ChatGoogleGenerativeAI(model=model)
         base_script = """### 명령어
 나는 옵시디언에 데이터를 수집하고 싶어. 내가 만든 스타일대로 markdown 양식으로 변환해줘.
 ### 요구사항
@@ -122,4 +122,4 @@ url: {youtube_url}
 
 
 if __name__ == "__main__":
-    fire.Fire(Main)
+    fire.Fire(YoutubeSummaryAgent)

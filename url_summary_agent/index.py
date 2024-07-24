@@ -21,9 +21,10 @@ def process_url(url: str):
     if output == "":
         raise ValueError("URL path is empty.")
     output = output.split("/")[-1]
-    cmd = f"clipper clip -u {url} -o {output}.md"
+    cmd = f"clipper clip -u '{url}' -o '{output}.tmp.md'"
+    print(cmd)
     subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    return f"{output}.md"
+    return f"{output}.tmp.md"
 
 
 def remove_urls_from_md(filepath: str):
@@ -33,7 +34,31 @@ def remove_urls_from_md(filepath: str):
     return content
 
 
-class Main:
+def get_unique_filepath(filepath):
+    # 파일이 존재하는지 확인
+    if not os.path.exists(filepath):
+        return filepath
+
+    # 파일명과 확장자를 분리
+    base, ext = os.path.splitext(filepath)
+
+    # 숫자를 붙일 수를 저장할 변수
+    counter = 1
+
+    # 새로운 파일명을 찾을 때까지 반복
+    while True:
+        # 새로운 파일명 생성
+        new_filepath = f"{base}_{counter}{ext}"
+
+        # 새로운 파일명이 존재하지 않으면 반환
+        if not os.path.exists(new_filepath):
+            return new_filepath
+
+        # 숫자를 증가시키고 반복
+        counter += 1
+
+
+class UrlSummaryAgent:
     def __check(self):
         res = subprocess.run(
             "which clipper", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
@@ -46,9 +71,9 @@ class Main:
                 stderr=subprocess.PIPE,
             )
 
-    def run(self, url: str, prompt: str = ""):
+    def run(self, url: str, prompt: str = "", model: str = "gemini-1.5-flash"):
         self.__check()
-        llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
+        llm = ChatGoogleGenerativeAI(model=model)
         filepath = process_url(url)
         while not os.path.exists(filepath):
             print("파일이 존재하지 않아 잠시 멈췄습니다.")
@@ -62,9 +87,13 @@ class Main:
             ("human", f"### 입력 데이터\n{content}\n### 출력\n"),
         ]
         result = llm.invoke(messages)
+        tmp_filepath = filepath
+        filepath = tmp_filepath.replace(".tmp", "")
+        filepath = get_unique_filepath(filepath)
         with open(filepath, mode="w", encoding="utf-8") as f:
             f.write(result.content)
+        os.remove(tmp_filepath)
 
 
 if __name__ == "__main__":
-    fire.Fire(Main)
+    fire.Fire(UrlSummaryAgent)
