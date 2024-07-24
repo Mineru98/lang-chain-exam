@@ -162,3 +162,10 @@ cython_debug/
 *.json
 output/
 .DS_Store
+*.html
+*.csv
+*.txt
+*.pdf
+!README.md
+*.md
+test*py

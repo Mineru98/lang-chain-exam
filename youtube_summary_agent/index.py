@@ -37,9 +37,12 @@ def get_youtube_info(url: str):
 
 
 def get_youtube_video_id(url: str):
-    parsed_url = urlparse(url)
-    query_params = parse_qs(parsed_url.query)
-    video_id = query_params.get("v", [None])[0]
+    if url.startswith("https://youtu.be/"):
+        video_id = url.split("/")[-1]
+    elif url.startswith("https://www.youtube.com/watch?"):
+        parsed_url = urlparse(url)
+        query_params = parse_qs(parsed_url.query)
+        video_id = query_params.get("v", [None])[0]
     return video_id
 
 
@@ -104,13 +107,18 @@ url: {youtube_url}
   {original_script}
 </details>""",
             )
+        else:
+            base_script = base_script.replace("{more}\n", "")
         messages = [
             ("system", base_script),
             ("human", f"### 입력 데이터\n{content}\n### 출력\n"),
         ]
         result = llm.invoke(messages)
-        with open("{}.md".format(title), mode="w", encoding="utf-8") as f:
-            f.write(result.content)
+        if result.content != "":
+            with open("{}.md".format(title), mode="w", encoding="utf-8") as f:
+                f.write(result.content)
+        else:
+            print("무언가 문제가 발생했습니다.")
 
 
 if __name__ == "__main__":

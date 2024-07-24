@@ -177,7 +177,10 @@ markdown 양식으로 변환해줘.
     try:
         with st.spinner("요약 중..."):
             result = llm.invoke(messages)
-            st.markdown(result.content, unsafe_allow_html=True)
+            if result.content != "":
+                st.markdown(result.content, unsafe_allow_html=True)
+            else:
+                st.error("안전성 이슈와 관련 된 문제가 발생했습니다.")
     except:
         st.error(
             "요약에 실패했습니다. 요청 횟수 제한이 걸렸거나, API KEY 입력이 잘못 되었습니다."
