@@ -1,14 +1,21 @@
 import getpass
 import os
+import platform
 import subprocess
 import time
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
 
 import fire
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 if "GOOGLE_API_KEY" not in os.environ:
     os.environ["GOOGLE_API_KEY"] = getpass.getpass("Provide your Google API Key")
+
+
+def decode_url_encoded_string(encoded_string):
+    # URL 인코딩된 문자열을 디코딩하여 원래 문자열로 변환
+    decoded_string = unquote(encoded_string)
+    return decoded_string
 
 
 def extract_path(url: str):
@@ -21,8 +28,8 @@ def process_url(url: str):
     if output == "":
         raise ValueError("URL path is empty.")
     output = output.split("/")[-1]
-    cmd = f"clipper clip -u '{url}' -o '{output}.tmp.md'"
-    print(cmd)
+    output = decode_url_encoded_string(output)
+    cmd = f'clipper clip -u "{url}" -o "{output}.tmp.md"'
     subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return f"{output}.tmp.md"
 
@@ -60,8 +67,12 @@ def get_unique_filepath(filepath):
 
 class UrlSummaryAgent:
     def __check(self):
+        if platform.system() == "Windows":
+            cmd = "where clipper"
+        else:
+            cmd = "which clipper"
         res = subprocess.run(
-            "which clipper", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
         if res.returncode == 1:
             subprocess.run(

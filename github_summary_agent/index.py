@@ -1,6 +1,7 @@
 import getpass
 import json
 import os
+import platform
 import re
 import subprocess
 import time
@@ -46,7 +47,7 @@ def get_repo(repo: str):
 def process_url(url: str):
     user_name = url.split("/")[-2]
     repo_name = url.split("/")[-1]
-    cmd = f"clipper clip -u {url} -o {user_name}_{repo_name}.md"
+    cmd = f'clipper clip -u "{url}" -o "{user_name}_{repo_name}.md"'
     subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return f"{user_name}_{repo_name}.md"
 
@@ -93,8 +94,12 @@ def remove_urls_from_md(filepath: str):
 
 class GithubSummaryAgent:
     def __check(self):
+        if platform.system() == "Windows":
+            cmd = "where clipper"
+        else:
+            cmd = "which clipper"
         res = subprocess.run(
-            "which clipper", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
         if res.returncode == 1:
             subprocess.run(

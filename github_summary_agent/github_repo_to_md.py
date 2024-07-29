@@ -11,7 +11,7 @@ def process_url(row: Dict):
     url = row["url"]
     user_name = url.split("/")[-2]
     repo_name = url.split("/")[-1]
-    cmd = f"clipper clip -u {url} -o output/{user_name}_{repo_name}.md"
+    cmd = f'clipper clip -u "{url}" -o "output/{user_name}_{repo_name}.md"'
     subprocess.run(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
 
