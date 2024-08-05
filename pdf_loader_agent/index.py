@@ -174,6 +174,44 @@ class PdfSummaryAgent:
         with open(filepath.replace(".txt", ".md"), mode="w", encoding="utf-8") as f:
             f.write(result.content)
 
+    def parse(self, filename: str):
+        if os.path.exists(filename):
+            subprocess.run(
+                f"docker run -ti --rm -v `pwd`:/pdf sergiomtzlosa/pdf2htmlex pdf2htmlEX --zoom 1.3 {filename}",
+                shell=True,
+            )
+        filename = filename.replace(".pdf", ".html")
+        rows = []
+        with open(filename, "r") as f:
+            rows = extract_left_properties(f)
+        os.remove(filename)
+        if len(rows) > 0:
+            rows = list(filter(lambda x: len(x["content"]) < 1000, rows))
+            rows = reconstruct_sort(rows)
+            with open(filename.replace(".html", ".json"), "w", encoding="utf-8") as f:
+                f.write(orjson.dumps(rows, option=orjson.OPT_INDENT_2).decode("utf-8"))
+            os.remove(filename.replace(".html", ".json"))
+            lines = []
+            count = 1
+            for k in rows:
+                stack_bottom = None
+                stack_left = None
+                lines.append(f"\n\n# Page {count}\n")
+                for line in rows[k]["content"]:
+                    if stack_left is None:
+                        stack_left = float(line.get("left", 0))
+                    if stack_bottom is None:
+                        stack_bottom = float(line.get("bottom", 0))
+                    if stack_bottom != float(line.get("bottom", 0)):
+                        lines.append(line["content"] + "\n")
+                    else:
+                        lines.append(line["content"])
+                count += 1
+            lines = merge_lines(lines)
+            lines = "".join(lines).strip()
+            with open(filename.replace(".html", ".txt"), "w", encoding="utf-8") as f:
+                f.write(lines)
+
     def load(self, url: str, name: Optional[str]):
         if name is None:
             filename = url.replace("https://", "").replace("http://", "")
