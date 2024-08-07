@@ -1,4 +1,5 @@
 import os
+import platform
 import subprocess
 from collections import defaultdict
 from typing import Optional
@@ -151,7 +152,12 @@ def extract_left_properties(html_content):
 
 
 class PdfSummaryAgent:
-    def run(self, filepath: str, prompt: Optional[str], model: str = "gemini-1.5-pro"):
+    def run(
+        self,
+        filepath: str,
+        model: str = "gemini-1.5-pro",
+        prompt: Optional[str] = None,
+    ):
         if not os.path.exists(filepath):
             raise "파일이 존재하지 않습니다."
         llm = ChatGoogleGenerativeAI(model=model)
@@ -176,10 +182,19 @@ class PdfSummaryAgent:
 
     def parse(self, filename: str):
         if os.path.exists(filename):
-            subprocess.run(
-                f"docker run -ti --rm -v `pwd`:/pdf sergiomtzlosa/pdf2htmlex pdf2htmlEX --zoom 1.3 {filename}",
-                shell=True,
-            )
+            if platform.system() == "Windows":
+                subprocess.run(
+                    "docker run -ti --rm -v %"
+                    + "cd"
+                    + "%:/pdf sergiomtzlosa/pdf2htmlex pdf2htmlEX --zoom 1.3 "
+                    + filename,
+                    shell=True,
+                )
+            else:
+                subprocess.run(
+                    f"docker run -ti --rm -v `pwd`:/pdf sergiomtzlosa/pdf2htmlex pdf2htmlEX --zoom 1.3 {filename}",
+                    shell=True,
+                )
         filename = filename.replace(".pdf", ".html")
         rows = []
         with open(filename, "r") as f:
@@ -212,9 +227,12 @@ class PdfSummaryAgent:
             with open(filename.replace(".html", ".txt"), "w", encoding="utf-8") as f:
                 f.write(lines)
 
-    def load(self, url: str, name: Optional[str]):
+    def load(self, url: str, name: Optional[str] = None):
         if name is None:
-            filename = url.replace("https://", "").replace("http://", "")
+            filename = (
+                url.replace("https://", "").replace("http://", "").split("/")[-1]
+                + ".pdf"
+            )
         elif name.endswith(".pdf"):
             filename = name
         res = requests.get(url)
@@ -225,14 +243,23 @@ class PdfSummaryAgent:
         else:
             raise "해당 링크는 PDF 파일이 아닙니다."
         if os.path.exists(filename):
-            subprocess.run(
-                f"docker run -ti --rm -v `pwd`:/pdf sergiomtzlosa/pdf2htmlex pdf2htmlEX --zoom 1.3 {filename}",
-                shell=True,
-            )
+            if platform.system() == "Windows":
+                subprocess.run(
+                    "docker run -ti --rm -v %"
+                    + "cd"
+                    + "%:/pdf sergiomtzlosa/pdf2htmlex pdf2htmlEX --zoom 1.3 "
+                    + filename,
+                    shell=True,
+                )
+            else:
+                subprocess.run(
+                    f"docker run -ti --rm -v `pwd`:/pdf sergiomtzlosa/pdf2htmlex pdf2htmlEX --zoom 1.3 {filename}",
+                    shell=True,
+                )
             os.remove(filename)
         filename = filename.replace(".pdf", ".html")
         rows = []
-        with open(filename, "r") as f:
+        with open(filename, "r", encoding="utf-8") as f:
             rows = extract_left_properties(f)
         os.remove(filename)
         if len(rows) > 0:
