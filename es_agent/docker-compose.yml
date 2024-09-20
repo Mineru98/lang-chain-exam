@@ -1,0 +1,21 @@
+version: '3.2'
+services:
+  elk:
+    build:
+      context: docker/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - ./docker/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+      - elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - "ES_JAVA_OPTS=-Xmx1g -Xms1g" 
+      - "ELASTIC_PASSWORD=test1234!#"
+      - "discovery.type=single-node"
+      - "http.port=9200"
+      - "transport.port=9300"
+volumes:
+  elasticsearch: {}

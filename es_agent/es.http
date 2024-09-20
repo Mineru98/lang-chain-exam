@@ -1,0 +1,113 @@
+DELETE /test HTTP/1.1
+Host: localhost:9200
+Content-Type: application/json
+Authorization: Basic elastic:test1234!#
+
+###
+
+PUT /test HTTP/1.1
+Host: localhost:9200
+Content-Type: application/json
+Authorization: Basic elastic:test1234!#
+
+{
+    "settings": {
+        "index": {
+            "number_of_replicas": 0,
+            "number_of_shards": 5,
+            "refresh_interval": "15s",
+            "max_result_window": 30000
+        },
+        "analysis": {
+            "char_filter": {
+                "camel_filter": {
+                    "type": "pattern_replace",
+                    "pattern": "(?<=\\p{Lower})(?=\\p{Upper})",
+                    "replacement": " "
+                }
+            },
+            "tokenizer": {
+                "nori_none": {
+                    "type": "nori_tokenizer",
+                    "decompound_mode": "none"
+                },
+                "nori_discard": {
+                    "type": "nori_tokenizer",
+                    "decompound_mode": "discard"
+                },
+                "nori_mixed": {
+                    "type": "nori_tokenizer",
+                    "decompound_mode": "mixed"
+                },
+                "nori_user_dict": {
+                    "type": "nori_tokenizer",
+                    "decompound_mode": "mixed",
+                    "user_dictionary": "user_dic.txt"
+                }
+            },
+            "filter": {
+                "nori_pos": {
+                    "type": "nori_part_of_speech",
+                    "stoptags": [
+                        "E",
+                        "J",
+                        "SC",
+                        "SF",
+                        "SP",
+                        "SSC",
+                        "SSO",
+                        "SY",
+                        "VCN",
+                        "VCP",
+                        "VSV",
+                        "VX",
+                        "XPN",
+                        "XSA",
+                        "XSN",
+                        "XSV"
+                    ]
+                }
+            },
+            "analyzer": {
+                "custom_analyzer": {
+                    "type": "custom",
+                    "char_filter": [
+                        "camel_filter"
+                    ],
+                    "tokenizer": "whitespace",
+                    "filter": [
+                        "lowercase",
+                        "snowball"
+                    ]
+                },
+                "nori_analyzer": {
+                    "type": "custom",
+                    "tokenizer": "nori_user_dict",
+                    "filter": [
+                        "nori_pos",
+                        "nori_readingform",
+                        "lowercase",
+                        "remove_duplicates"
+                    ]
+                }
+            }
+        }
+    },
+    "mappings": {
+        "properties": {
+            "text": {
+                "type": "text",
+                "analyzer": "nori_analyzer",
+                "search_analyzer": "standard",
+                "index": true,
+                "fielddata": false
+            },
+            "vector": {
+                "type": "dense_vector",
+                "dims": 1024,
+                "index": true,
+                "similarity": "dot_product"
+            }
+        }
+    }
+}

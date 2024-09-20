@@ -170,3 +170,5 @@ output/
 *.md
 test*py
 .conda
+images
+!requirements.txt
