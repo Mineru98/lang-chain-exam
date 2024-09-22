@@ -38,11 +38,6 @@ Authorization: Basic elastic:test1234!#
                 "nori_mixed": {
                     "type": "nori_tokenizer",
                     "decompound_mode": "mixed"
-                },
-                "nori_user_dict": {
-                    "type": "nori_tokenizer",
-                    "decompound_mode": "mixed",
-                    "user_dictionary": "user_dic.txt"
                 }
             },
             "filter": {
@@ -82,7 +77,7 @@ Authorization: Basic elastic:test1234!#
                 },
                 "nori_analyzer": {
                     "type": "custom",
-                    "tokenizer": "nori_user_dict",
+                    "tokenizer": "nori_mixed",
                     "filter": [
                         "nori_pos",
                         "nori_readingform",
