@@ -1,3 +1,4 @@
+from pprint import pprint
 from typing import Any, Callable, Dict, List, Optional
 
 import requests
@@ -34,7 +35,8 @@ class CustomElasticSearchStore(ElasticsearchStore):
                         "params": {"query_vector": query_vector},
                     },
                 }
-            }
+            },
+            "_source": {"includes": ["_score"]},
         }
 
     def similarity_search(
@@ -61,6 +63,7 @@ class CustomElasticSearchStore(ElasticsearchStore):
             hits=hits,
             content_field=self.query_field,
         )
+        pprint(docs)
         return [doc for doc, _score in docs]
 
 
@@ -129,20 +132,65 @@ class VectorStore:
 
     def save(self):
         text_list = [
-            "Galaxy S9의 특징은 저렴하다는 것이다",
-            "Galaxy S9의 배터리는 3000 mAh이다",
-            "Galaxy S10의 카메라는 Triple rear cameras이다. ",
-            "Galaxy S20의 Display는 6.2-inch Dynamic AMOLED이다.",
-            "Galaxy S20의 저장공간은 128G이다",
-            "Galaxy S21의 Ram은 8GB이다",
+            {
+                "company_name": "삼성전자",
+                "sentences": [
+                    "삼성전자는 반도체, 스마트폰, 가전제품 분야에서 세계적인 기업입니다.",
+                    "삼성전자는 글로벌 시장에서의 강력한 경쟁력을 바탕으로 높은 매출과 이익을 창출합니다.",
+                    "특히, 반도체 부문은 삼성전자의 핵심 성장 동력으로 꼽히며, 5G와 AI 기술 개발에도 앞장서고 있습니다.",
+                ],
+            },
+            {
+                "company_name": "LG화학",
+                "sentences": [
+                    "LG화학은 배터리와 석유화학 분야에서 글로벌 리더로 자리매김하고 있습니다.",
+                    "전기차 배터리 부문에서 혁신적인 기술을 바탕으로 성장하고 있으며, 친환경 소재 개발에도 적극적으로 투자하고 있습니다.",
+                    "LG화학은 지속 가능한 경영과 탄소 중립 실현을 목표로 하는 기업입니다.",
+                ],
+            },
+            {
+                "company_name": "네이버",
+                "sentences": [
+                    "네이버는 대한민국을 대표하는 인터넷 서비스 기업으로, 검색엔진과 포털 사이트를 운영합니다.",
+                    "최근에는 인공지능, 클라우드, 콘텐츠 플랫폼 등 다양한 분야로 사업을 확장하고 있습니다.",
+                    "네이버는 라인(LINE)과 같은 글로벌 메신저 플랫폼을 통해 해외에서도 높은 인지도를 가지고 있습니다.",
+                ],
+            },
+            {
+                "company_name": "카카오",
+                "sentences": [
+                    "카카오는 모바일 메신저 '카카오톡'을 통해 대한민국의 대표적인 IT 기업으로 성장했습니다.",
+                    "모바일 결제, 게임, 금융, 엔터테인먼트 등 다양한 분야로 사업을 확장하여, 디지털 플랫폼 기업으로의 위상을 높이고 있습니다.",
+                    "카카오는 최근 블록체인, AI, 모빌리티 등의 혁신 기술에도 적극적으로 투자하고 있습니다.",
+                ],
+            },
+            {
+                "company_name": "포스코",
+                "sentences": [
+                    "포스코는 세계적인 철강 기업으로, 고품질 철강재를 생산하며 다양한 산업에 공급하고 있습니다.",
+                    "글로벌 시장에서 경쟁력을 유지하기 위해 신소재 개발과 기술 혁신에 힘쓰고 있습니다.",
+                    "포스코는 지속 가능한 발전을 위한 친환경 경영을 추진하고 있으며, 수소 사업에도 진출하고 있습니다.",
+                ],
+            },
         ]
 
         for text in text_list:
-            doc = [Document(page_content=text)]
-            self.vector_store.add_documents(doc, add_to_docstore=True)
+            for sentence in text["sentences"]:
+                doc = [
+                    Document(
+                        page_content=sentence,
+                        metadata={
+                            "company_name": text["company_name"],
+                            "sentences": sentence,
+                        },
+                    )
+                ]
+                self.vector_store.add_documents(doc, add_to_docstore=True)
 
     def search(self, query: str):
-        retriever = self.vector_store.as_retriever(search_kwargs={"k": 1})
+        retriever = self.vector_store.as_retriever(
+            search_kwargs={"k": 5, "score_threshold": 0.8}
+        )
         vector_result = retriever.invoke(query)
         print(vector_result)
 
@@ -154,4 +202,5 @@ store = VectorStore(
     es_user="elastic",
     es_password="test1234!#",
 )
-store.search("Galaxy S9의 특징은 저렴하다는 것이다")
+# store.save()
+store.search("반도체")
